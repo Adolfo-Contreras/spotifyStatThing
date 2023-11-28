@@ -23,15 +23,51 @@ const ThreeScene = () => {
     container.appendChild(renderer.domElement);
 
     // Camera
-    camera = new THREE.PerspectiveCamera(40, width / height, 1, 15000);
+    camera = new THREE.PerspectiveCamera(40, width / height, 1, 150000);
     camera.position.z = 0;
     camera.position.x = 100;
     camera.position.y = 0;
 
     // Scene
     scene = new THREE.Scene();
-    scene.background = new THREE.Color().setHSL(0.51, 0.4, 0.01);
-    scene.fog = new THREE.Fog(scene.background, 4000, 15000);
+    // scene.background = new THREE.Color().setHSL(0.51, 0.4, 0.01);
+    // scene.fog = new THREE.Fog(scene.background, 4000, 15000);
+    // Define the colors for the nebula effect
+const colors = [];
+colors.push(new THREE.Color().setHSL(0.6, 0.5, 0.3));
+colors.push(new THREE.Color().setHSL(0.7, 0.8, 0.6));
+colors.push(new THREE.Color().setHSL(0.8, 0.5, 0.2));
+
+// Define the color stops
+const colorStops = [0, 0.5, 1];
+
+// Create a canvas gradient for the background
+const canvas = document.createElement('canvas');
+canvas.width = 1024;
+canvas.height = 256;
+const ctx = canvas.getContext('2d');
+const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+
+for (let i = 0; i < colors.length; i++) {
+  gradient.addColorStop(colorStops[i], `rgb(${Math.floor(colors[i].r * 255)}, ${Math.floor(colors[i].g * 255)}, ${Math.floor(colors[i].b * 255)})`);
+}
+
+ctx.fillStyle = gradient;
+ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+// Use the canvas as a texture for the background
+const texture = new THREE.CanvasTexture(canvas);
+const backgroundMaterial = new THREE.MeshBasicMaterial({ map: texture });
+const backgroundGeometry = new THREE.PlaneGeometry(2, 2, 0);
+
+// Create a plane to render the background
+const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+backgroundMesh.material.depthTest = false;
+backgroundMesh.material.depthWrite = false;
+
+// Set the scene background to the background mesh
+scene.add(backgroundMesh);
+
 
     // Geometry and Material
     const geometry1 = new THREE.BoxGeometry(1000, 1000, 1000, 2, 2, 2,)
@@ -49,7 +85,7 @@ const ThreeScene = () => {
     const material = new THREE.MeshBasicMaterial({ color: 0xffffff, specular: 0xffffff, metalness: 0.9 });
 
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load('@/components/textures/Planet_Avalon_1600-4227295053.jpg');
+    // const texture = textureLoader.load('@/components/textures/Planet_Avalon_1600-4227295053.jpg');
 
     // Objects in the scene
 
@@ -110,6 +146,8 @@ for (let i = 0; i < 1000; i++) { // Change 10 to the desired number of cubes
     Math.random() * Math.PI,
     Math.random() * Math.PI
   );
+  
+
   scene.add(star);
 }
 
