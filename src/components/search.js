@@ -52,9 +52,10 @@ function SearchF() {
   // console.log(albums);
     
     return (
-        <div>
-            <div>
+        <div className="container p-2">
+            <div className="my-2">
                 <input
+                className=" border-[#e5e7eb] border-2 rounded p-0.5 mr-2"
                 placeholder="Search for Artist"
                 type="input"
                 onKeyDown={event => {
@@ -64,17 +65,18 @@ function SearchF() {
                 }}
                 onChange={event => setSearchInput(event.target.value)}>
                 </input>
-                <button onClick={search}>
+                <button className=" bg-sky-700 border shadow-inner shadow-sky-400 rounded-lg p-0.5 px-1" onClick={search}>
                     Search
                 </button>
             </div>
+
             <div>
                 {/* {console.log(albums)} */}
                 <div className="grid grid-cols-4 gap-4">
                 {albums.map( (album, i) => {
                     // console.log(album);
                     return(
-                        <div className="border-2">
+                        <div className="border-2 p-3 rounded">
                             <img src={album.images[0].url}></img>
                             <div className="text-center">
                                 <p>{album.name}</p>
