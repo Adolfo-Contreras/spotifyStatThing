@@ -9,6 +9,7 @@ function SearchF() {
   const [searchInput, setSearchInput] = useState("");
   const [accessToken, setAccessToken] = useState("");
   const [albums, setAlbums] = useState([]);
+  const [singles ,setSingles] = useState([]);
 
   useEffect(() => {
     
@@ -47,12 +48,19 @@ function SearchF() {
       // console.log(data);
       setAlbums(data.items);
     });
+
+    var returnedSingles = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=single&market=US&limit=50', searchParameters)
+    .then(response => response.json())
+    .then(data => {
+      // console.log(data);
+      setSingles(data.items);
+    });
     //Display those albums to the user
   }
   // console.log(albums);
     
     return (
-        <div className="container p-2">
+        <div className=" w-full p-2">
             <div className="my-2">
                 <input
                 className=" border-[#e5e7eb] border-2 rounded p-0.5 mr-2"
@@ -65,27 +73,46 @@ function SearchF() {
                 }}
                 onChange={event => setSearchInput(event.target.value)}>
                 </input>
-                <button className=" bg-sky-700 border shadow-inner shadow-sky-400 rounded-lg p-0.5 px-1" onClick={search}>
+                <button className=" bg-sky-500 border shadow-inner shadow-sky-400 rounded-lg p-0.5 px-1 text-center leading-tight" onClick={search}>
                     Search
                 </button>
             </div>
 
             <div>
+            <h1>Albums</h1>
                 {/* {console.log(albums)} */}
                 <div className="grid grid-cols-4 gap-4">
                 {albums.map( (album, i) => {
                     // console.log(album);
                     return(
-                        <div className="border-2 p-3 rounded">
-                            <img src={album.images[0].url}></img>
-                            <div className="text-center">
-                                <p>{album.name}</p>
+                        <div className="border-2 p-3.5 rounded-md">
+                            <img className=" w-[432px] h-[432px]" src={album.images[0].url}></img>
+                            <div className="text-center ">
+                                <p className=" my-1">{album.name}</p>
                             </div>
                         </div>
                     )
                 })}
 
                 </div>
+                <h1>Singles</h1>
+                <div className="grid grid-cols-4 gap-4">
+                {singles.map( (album, i) => {
+                    // console.log(album);
+                    return(
+                        <div className="border-2 p-3.5 rounded-md">
+                            <img className=" w-[432px] h-[432px]" src={album.images[0].url}></img>
+                            <div className="text-center ">
+                                <p className=" my-1">{album.name}</p>
+                            </div>
+                        </div>
+                    )
+                })}
+                </div>
+
+                
+
+                
             </div>
         </div>
     //   <div className="App">

@@ -2,8 +2,8 @@ import React, { useState, useEffect, createContext, useContext } from 'react';
 
 const tokenContext = createContext();
 
-export const tokenProvider = ({children})=>{
-    const [apiAuth, setapiAuth] = useState('');
+export const TokenProvider = ({children})=>{
+    const [apiAuth, setapiAuth] = useState("");
     
     return(
         <>
