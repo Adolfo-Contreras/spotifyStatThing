@@ -1,13 +1,18 @@
 
-import { Inter } from 'next/font/google'
-import SearchF from '@/components/search'
-const inter = Inter({ subsets: ['latin'] })
 
-export default function Home() {
+import ThreeScene from '@/components/ThreeScene'
+
+
+
+function App() {
   return (
-    <>
-    <main>
-    </main>
-    </>
-  )
+    
+    <div className='h-screen w-screen flex object-contain justify-center static'>
+      <ThreeScene/>
+
+      </div>
+      
+  );
 }
+
+export default App;
