@@ -1,14 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useToken } from './tokenContext';
 
 
-const tokenRefresh = ()=>{
+ const TokenRefresh = ()=>{
   // const [apiAuth, setapiAuth] = useState('');
+  const {apiAuth, setapiAuth} = useToken();
 
   useEffect(() => {
     const clientId = '648cb720a9514f6a8f0ca2d0fcb802c8';
-    const clientSecret = '1cd72998b404422882cb8e51123f0425'
+    const clientSecret = '1cd72998b404422882cb8e51123f0425';
+    const data = `grant_type=client_credentials&client_id=${clientId}&client_secret=${clientSecret}`;
 
-    const getToken = async ()=>{
+    const getToken= async ()=>{
       try {
         const response = await fetch(url, {
           method: 'POST',
@@ -24,15 +27,22 @@ const tokenRefresh = ()=>{
 
         const tokenData = await response.json();
         setapiAuth(tokenData.access_token);
+        console.log(apiAuth)
       } catch (error) {
         console.error(`Error: ${error.message}`);
       }
       getToken()
-      const intervalId = setInterval(() => {
-        getToken();
-      }, 60 * 60 * 1000);
+      // const ligma = setInterval(() => {
+      //   getToken();
+      // },1 * 1000 * 60 * 60);
     }
-    return () => clearInterval(intervalId);
   }, []);
+
+  return (
+    <>
+      <p>My Token: {apiAuth}</p>
+    </>
+  )
 }
 
+export default TokenRefresh;
