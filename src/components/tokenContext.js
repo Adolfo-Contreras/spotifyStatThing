@@ -7,7 +7,7 @@ export const tokenProvider = ({children})=>{
     
     return(
         <>
-            <tokenContext.Provider value={{ accessToken, setAccessToken }}>
+            <tokenContext.Provider value={{ apiAuth, setapiAuth }}>
                 {children}
             </tokenContext.Provider>
         </>
