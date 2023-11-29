@@ -19,7 +19,7 @@ function rankReducer(state, action) {
             throw Error('Unknown action '+ action.type)
     }
 }
-const initialState ={RankedHigher:['up','up2','up3'],RankedLower:['down']}
+const initialState ={RankedHigher:['up'],RankedLower:['down']}
 export function RankUI() {
     const [state, dispatch] = useReducer(rankReducer, initialState)
     function handleRankDown() {

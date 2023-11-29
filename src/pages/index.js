@@ -10,8 +10,8 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   return (
     <>
-    <main>
-    {/* <SearchF></SearchF> */}
+    <main className='p-3.5'>
+    <SearchF></SearchF>
     <RankUI></RankUI>
     </main>
     </>

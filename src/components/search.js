@@ -60,7 +60,7 @@ function SearchF() {
   // console.log(albums);
     
     return (
-        <div className=" w-full p-2">
+        <div className=" w-full">
             <div className="my-2">
                 <input
                 className=" border-[#e5e7eb] border-2 rounded p-0.5 mr-2"
@@ -84,9 +84,10 @@ function SearchF() {
                 <div className="grid grid-cols-4 gap-4">
                 {albums.map( (album, i) => {
                     // console.log(album);
+                    {/* className=" w-[432px] h-[432px]" */}
                     return(
                         <div className="border-2 p-3.5 rounded-md">
-                            <img className=" w-[432px] h-[432px]" src={album.images[0].url}></img>
+                            <img  src={album.images[0].url}></img>
                             <div className="text-center ">
                                 <p className=" my-1">{album.name}</p>
                             </div>
