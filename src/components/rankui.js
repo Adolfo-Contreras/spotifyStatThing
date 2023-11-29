@@ -1,8 +1,16 @@
+import React, { useReducer } from 'react';
 
 
 export function RankUI() {
+    function rankReducer() {
+        switch (action.type) {
+            case 'RankUp':{}
+            case 'RankDown':{}
+            default:
+                break;
+        }
+    }
 
-    
     return(
         <>
         <section className=" p-4 flex-col flex  gap-2.5">
