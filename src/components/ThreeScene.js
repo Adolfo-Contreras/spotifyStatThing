@@ -62,18 +62,20 @@ const ThreeScene = () => {
     }
 
     // Geometry and Material
-    const geometry1 = new THREE.BoxGeometry(1000, 1000, 1000, 2, 2, 2,)
+    const geometry1 = new THREE.BoxGeometry(800000,800000,800000, 2, 2, 2,)
     const material1 = new THREE.MeshBasicMaterial({ color: 0xc40233, specular: 0xffffff, metalness: 0.9 });
+    
 
     const cube1 = new THREE.Mesh(geometry1, material1);
+    cube1.position.set(150000, -600000, 0);
 
     scene.add(cube1);
 
 
-
-
-    const s = 250;
-    const geometrymesh = new THREE.SphereGeometry(30, 30, 30);
+     
+    
+    
+   
     const material = new THREE.MeshBasicMaterial({ color: 0xffffff, specular: 0xffffff, metalness: 0.9 });
 
     const textureLoader = new THREE.TextureLoader();
@@ -105,6 +107,28 @@ const ThreeScene = () => {
 
       return geometries[Math.floor(Math.random() * geometries.length)];
     }
+    function spheresIntersect(sphere1, sphere2) {
+  const distance = sphere1.position.distanceTo(sphere2.position);
+  return distance < sphere1.geometry.parameters.radius + sphere2.geometry.parameters.radius;
+}
+
+// Function to generate a random non-intersecting position for a sphere
+function generateNonIntersectingPosition(existingSpheres) {
+  const position = new THREE.Vector3(
+    80000 * (6.0 * Math.random() - 1.0),
+    80000 * (6.0 * Math.random() - 1.0),
+    80000 * (6.0 * Math.random() - 1.0)
+  );
+
+  // Check for intersections with existing spheres
+  for (const sphere of existingSpheres) {
+    if (spheresIntersect(sphere, { position, geometry: { parameters: { radius: 1000 } } })) {
+      return generateNonIntersectingPosition(existingSpheres);
+    }
+  }
+
+  return position;
+}
 
     spheres = [];
     for (let i = 0; i < 600; i++) {
@@ -113,9 +137,9 @@ const ThreeScene = () => {
       const mesh = new THREE.Mesh(geometry, material);
 
       mesh.position.set(
-        80000 * (6.0 * Math.random() - 1.0),
-        80000 * (6.0 * Math.random() - 1.0),
-        80000 * (6.0 * Math.random() - 1.0)
+        800000 * (6.0 * Math.random() - 1.0),
+        800000 * (6.0 * Math.random() - 1.0),
+        800000 * (6.0 * Math.random() - 1.0)
       );
 
       const scale = Math.random() * 100 + 10;
@@ -126,16 +150,23 @@ const ThreeScene = () => {
         Math.random() * Math.PI,
         Math.random() * Math.PI
       );
+      mesh.position.copy(generateNonIntersectingPosition(spheres));
 
        // Assign random song to each sphere
 
       spheres.push(mesh);
       scene.add(mesh);
     }
+   
+    
 
+        
+        
+        // Ambient light to illuminate all objects in the scene
+       
     ;
-    const geometryStar = new THREE.BoxGeometry(20, 20, 20);
-    const materialStar = new THREE.MeshBasicMaterial({ color: 0xffffff, specular: 0xffffff, metalness: 0.9 });
+    //  const geometryStar = new THREE.BoxGeometry(20, 20, 20);
+    // const materialStar = new THREE.MeshBasicMaterial({ color: 0xffffff, specular: 0xffffff, metalness: 0.9 });
 
     // for (let i = 0; i < 10000; i++) { // Change 10 to the desired number of cubes
     //   const star = new THREE.Mesh(geometryStar, materialStar);
@@ -160,7 +191,7 @@ const ThreeScene = () => {
 
     // Controls
     controls = new FlyControls(camera, renderer.domElement);
-    controls.movementSpeed = 15000;
+    controls.movementSpeed = 150000;
     controls.domElement = renderer.domElement;
     controls.rollSpeed = Math.PI / 6;
     controls.autoForward = false;
@@ -198,13 +229,19 @@ const ThreeScene = () => {
     const center = new THREE.Vector3(0, 0, 0);
 
     spheres.forEach((sphere, index) => {
+      // Rotate the spheres
       sphere.rotation.y += 0.01;
-      // const angle = Date.now() * 0.001; // Varying angle to make them move at the same speed
-
-      // const x = sphere.position.x + Math.cos(angle) * orbitRadius + sphere.position.x;
-      // const z = sphere.position.z + Math.sin(angle);
-
-      // sphere.position.set(x, sphere.position.y, z);
+  
+      // Adjust the scaling factor for growth and shrinkage
+      const scaleSpeed = 0.01; // Change this value to control the speed of scaling
+      const minScale = 0.5;
+      const maxScale = 2.0;
+  
+      // Calculate the scaling factor using a sine wave to create a pulsating effect
+      const scaleFactor = Math.sin(Date.now() * scaleSpeed) * 0.5 + 10.0; // Adjust the factor to ensure the size remains positive
+  
+      // Apply the scaling factor to the sphere
+      sphere.scale.set(minScale + scaleFactor * (maxScale - minScale), minScale + scaleFactor * (maxScale - minScale), minScale + scaleFactor * (maxScale - minScale));
     });
 
 
