@@ -1,20 +1,19 @@
-import React, { useState, useEffect, createContext, useContext } from 'react';
-
+"use client";
+import React, { useState, createContext, useContext } from 'react';
 const tokenContext = createContext();
-
 export const TokenProvider = ({children})=>{
-    const [apiAuth, setapiAuth] = useState("");
-    
+    const [accessToken, setAccessToken] = useState(null);
+    const setToken = (token)=>{
+        setAccessToken(token)
+    }
     return(
         <>
-            <tokenContext.Provider value={{ apiAuth, setapiAuth }}>
+            <tokenContext.Provider value={{accessToken, setToken}}>
                 {children}
             </tokenContext.Provider>
         </>
     )
       };
-      
-      
 export const useToken = () => {
         const context = useContext(tokenContext);
         if (!context) {

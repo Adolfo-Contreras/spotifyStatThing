@@ -1,4 +1,5 @@
 import {useState, useEffect } from "react";
+import { useToken } from "./idk/tokenContext";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 // import { Container, InputGroup, FormControl, Button, Row, Card} from 'react-bootstrap';
 
@@ -7,7 +8,8 @@ const clientSecret = "42396c3d643941c7a35ccdaefc3877b7";
 
 function SearchF() {
   const [searchInput, setSearchInput] = useState("");
-  const [accessToken, setAccessToken] = useState("");
+  const {accessToken, setToken} = useToken();
+  console.log(accessToken)
   const [albums, setAlbums] = useState([]);
   const [singles ,setSingles] = useState([]);
 
@@ -16,13 +18,13 @@ function SearchF() {
     var authParameters = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'lication/x-www-form-urlencoded'
       },
       body: 'grant_type=client_credentials&client_id=' + clientID + '&client_secret=' + clientSecret
     }
     fetch('https://accounts.spotify.com/api/token', authParameters)
       .then(result => result.json())
-      .then(data => setAccessToken(data.access_token))
+      .then(data => setToken(data.access_token))
   }, [])
   console.log(accessToken);
   async function search() {
@@ -32,8 +34,8 @@ function SearchF() {
     var searchParameters = {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + accessToken
+        'Content-Type': 'lication/json',
+        'Authorization': `Bearer ${accessToken}` 
       }
     }
     var artistID = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=artist', searchParameters)
@@ -116,7 +118,7 @@ function SearchF() {
                 
             </div>
         </div>
-    //   <div className="App">
+    //   <div className="">
     //     <Container>
     //       <InputGroup className="mb-3" size="lg">
     //         <FormControl
