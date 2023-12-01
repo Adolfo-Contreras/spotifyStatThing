@@ -46,6 +46,7 @@ export const ExampleArtist= ()=>{
   .then(data => {
     console.log(data);
     setmyData(data)
+    console.log(myData)
   })
   .catch(error => {
     console.error('There was a problem with the fetch operation:', error);
@@ -57,7 +58,7 @@ export const ExampleArtist= ()=>{
       <>
         <div>
         {myData ? (
-          <p>myData</p>
+          <p>{myData.name}</p>
         ):(
           <p>loading...</p>
         )}

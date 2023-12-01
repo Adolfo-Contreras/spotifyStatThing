@@ -1,3 +1,4 @@
+"use client";
 import {useState, useEffect } from "react";
 import { useToken } from "./idk/tokenContext";
 // import 'bootstrap/dist/css/bootstrap.min.css';
@@ -8,7 +9,7 @@ const clientSecret = "42396c3d643941c7a35ccdaefc3877b7";
 
 function SearchF() {
   const [searchInput, setSearchInput] = useState("");
-  const {accessToken, setToken} = useToken();
+  const {accessToken, setAccessToken} = useToken();
   console.log(accessToken)
   const [albums, setAlbums] = useState([]);
   const [singles ,setSingles] = useState([]);
