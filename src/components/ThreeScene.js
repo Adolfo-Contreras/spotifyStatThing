@@ -247,7 +247,7 @@ function generateNonIntersectingPosition(existingSpheres) {
 
 
 
-    renderer.render(scene, camera);
+    ;
 
 
     requestAnimationFrame(animate);
@@ -262,8 +262,9 @@ function generateNonIntersectingPosition(existingSpheres) {
   function render() {
     const delta = clock.getDelta();
     controls.update(delta);
-    renderer.render(scene, camera);
+    renderer.render(scene, camera)
   }
+  
 
   return <div ref={containerRef} style={{ width: '100%', height: '100%' }}></div>;
 };

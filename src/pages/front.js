@@ -11,29 +11,16 @@ export default function Home() {
   return (
    
     <>    
-   
-   <ThreeScene></ThreeScene>
-
-    
-    <div className='h-screen w-screen flex object-contain justify-center static'>
-    
-    <ThreeScene></ThreeScene>
-    
-      
-    
-      
-
+      <div>
+        <h1>
+          hello
+        </h1>
       </div>
-    
-        
-    
-
-    
-
-   
+      
+      <div className='h-screen w-screen flex object-contain justify-center static'>
+        <ThreeScene />
+      </div>
     </>
-
-    
    
   )
 }
