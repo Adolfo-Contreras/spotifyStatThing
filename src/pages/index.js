@@ -9,10 +9,9 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Home() {
   return (
     <>
-    <main className='p-3.5'>
+    <main>
     <SearchF></SearchF>
-    {/* <RankUI></RankUI> */}
-    <ExampleArtist></ExampleArtist>
+    <RankUI></RankUI>
     </main>
     </>
   )

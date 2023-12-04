@@ -9,13 +9,26 @@ const clientSecret = "42396c3d643941c7a35ccdaefc3877b7";
 
 function SearchF() {
   const [searchInput, setSearchInput] = useState("");
+  
   const {accessToken, setAccessToken} = useToken();
+  const [artistId, setArtistId] = useState("");
+
   const [albums, setAlbums] = useState([]);
+
+  const [numOfAlbums, setNumOfAlbums] = useState(0);
+  const [albumID, setAlbumID] = useState("");
+
   const [singles ,setSingles] = useState([]);
+  const [numOfSingles, setNumOfSingles] = useState(0); 
+
+  const [tracks, setTracks] = useState([]);
+  const [numOfTracks, setNumOfTracks] = useState(0);
+
+  const [selectedSongs, setSelectedSongs] = ([]);
 
   useEffect(() => {
-    
-    var authParameters = {
+      
+      var authParameters = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
@@ -26,133 +39,273 @@ function SearchF() {
       .then(result => result.json())
       .then(data => setAccessToken(data.access_token))
   }, [])
-  console.log(accessToken);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //GRABS ALL ALBUMS
+  useEffect(() => {
+    // console.log('# of albums',numOfAlbums);
+
+    const rerun = Math.ceil(numOfAlbums / 50);
+
+    const albumsAgain = async (offset, artistId) => {
+        var searchParameters = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + accessToken
+              }
+        }
+        const response = await fetch('https://api.spotify.com/v1/artists/' + artistId + '/albums' + '?include_groups=album&market=US&limit=50&offset=' + offset, searchParameters);
+
+        const data = await response.json();
+        
+        // console.log('data',data);
+        setAlbums(prevAlbums => [...prevAlbums, ...data.items]);
+    };
+
+    const runAsyncFunction = async (artistId) => {
+        for (let i = 1; i < rerun; i++) {
+          const offset = i * 50;
+          await albumsAgain(offset, artistId);
+        }
+      };
+  
+    runAsyncFunction(artistId);
+  }, [numOfAlbums, artistId]);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //GRABS ALL TRACKS FROM AN ALBUM
+  useEffect(() => {
+    // console.log('# of tracks',numOfTracks);
+    console.log("tracks: ", tracks);
+    console.log("selected: ", selectedSongs);
+    const rerun = Math.ceil(numOfTracks / 50);
+
+    const tracksAgain = async (offset, albumID) => {
+        var searchParameters = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + accessToken
+              }
+        }
+        const response = await fetch('https://api.spotify.com/v1/albums/' + albumID + '/tracks?market=US&limit=50&offset=' + offset, searchParameters)
+        
+        const data = await response.json();
+        
+        // console.log('data: ', data);
+        setTracks(prevTracks => [...prevTracks, ...data.items]);
+    };
+
+    const runAsyncFunction = async (albumID) => {
+        for (let i = 1; i < rerun; i++) {
+          const offset = i * 50;
+          await tracksAgain(offset, albumID);
+        }
+      };
+  
+    runAsyncFunction(albumID);
+
+  },[numOfTracks,albumID]);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  //GRABS ALL SINGLES
+  useEffect(() => {
+    // console.log('# of singles',numOfSingles);
+
+    const rerun = Math.ceil(numOfSingles / 50);
+
+    const singlesAgain = async (offset, artistId) => {
+        var searchParameters = {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + accessToken
+              }
+        }
+        const response = await fetch('https://api.spotify.com/v1/artists/' + artistId + '/albums' + '?include_groups=single&market=US&limit=50&offset=' + offset, searchParameters);
+
+        const data = await response.json();
+        
+        // console.log('data',data);
+        setSingles(prevSingles => [...prevSingles, ...data.items]);
+    };
+
+    const runAsyncFunction = async (artistId) => {
+        for (let i = 1; i < rerun; i++) {
+          const offset = i * 50;
+          await singlesAgain(offset, artistId);
+        }
+      };
+  
+    runAsyncFunction(artistId);
+  }, [numOfSingles, artistId]);
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
   async function search() {
+    setTracks([]);
+    // console.log("Test",tracks);
+    // console.log("tracks: ", tracks);
+    if (searchInput === '') return;
     console.log("Searching for " + searchInput); // Taylor Swift
-
-    //Get request using search to get the Artist ID
+    
+    //used for pretty much anything involving the spotify API
     var searchParameters = {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + accessToken
-      }
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + accessToken
+            }
     }
-    var artistID = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=artist', searchParameters)
-    .then(response => response.json())
-    .then(data => { return data.artists.items[0].id })
 
+    //////////////////////////////////
+
+    const artistID = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=artist', searchParameters)
+    .then(response => response.json())
+    .then(data => { 
+        setArtistId(data.artists.items[0].id)
+        return data.artists.items[0].id 
+    })
+    
     console.log("Artist ID is " + artistID);
-    //Get request with Artist ID grab all the albums from that artist
-    var returnedAlbums = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=album&market=US&limit=50', searchParameters)
+    
+    //////////////////////////////////
+
+    //uses artist id to find their albums (but only finds first 50)
+    const returnedAlbums = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=album&market=US&limit=50', searchParameters)
     .then(response => response.json())
     .then(data => {
-      // console.log(data);
+      console.log(data);
+      setNumOfAlbums(data.total)    
       setAlbums(data.items);
     });
 
-    var returnedSingles = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=single&market=US&limit=50', searchParameters)
+    //////////////////////////////////
+    
+    //uses artist id to find their singles (but only finds first 50)
+    const returnedSingles = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=single&market=US&limit=50&offset=0', searchParameters)
     .then(response => response.json())
     .then(data => {
-      // console.log(data);
-      setSingles(data.items);
-    });
-    //Display those albums to the user
+        setNumOfSingles(data.total)
+        setSingles(data.items);
+    })
   }
-  // console.log(albums);
-    
-    return (
-        <div className=" w-full">
-            <div className="my-2">
-                <input
-                className=" border-[#e5e7eb] border-2 rounded p-0.5 mr-2"
-                placeholder="Search for Artist"
-                type="input"
-                onKeyDown={event => {
-                    if (event.key === "Enter") {
-                        search();
-                    }
-                }}
-                onChange={event => setSearchInput(event.target.value)}>
-                </input>
-                <button className=" bg-sky-500 border shadow-inner shadow-sky-400 rounded-lg p-0.5 px-1 text-center leading-tight" onClick={search}>
-                    Search
-                </button>
-            </div>
 
-            <div>
+  //finds all the songs in the album
+  async function searchAlbums(id) {
+    console.log('album: ', id);
+    
+    var searchParameters = {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + accessToken
+        }
+    }
+    
+    const returnedAlbumTracks = await fetch('https://api.spotify.com/v1/albums/' + id + '/tracks?market=US&limit=50&offset=0', searchParameters)
+    .then(response => response.json())
+    .then(data => {
+        // console.log(data.items);
+        setNumOfTracks(data.total)
+        setTracks(data.items)
+        setAlbumID(id)
+    })
+  }
+
+  // adds them to the list
+  async function list(track) {
+    console.log(track.name);
+    // setSelectedSongs(...selectedSongs, track.name)
+
+  }
+
+    return (
+    <div className=" w-full p-2">
+        <div className="my-2"> {/*search */}
+            <input
+            className=" border-[#e5e7eb] border-2 rounded p-0.5 mr-2"
+            placeholder="Search for Artist"
+            type="input"
+            onKeyDown={event => {
+                if (event.key === "Enter") {
+                    search();
+                }
+            }}
+            onChange={event => setSearchInput(event.target.value.trim())}>
+            </input>
+            <button className=" bg-sky-500 border shadow-inner shadow-sky-400 rounded-lg p-0.5 px-1 text-center leading-tight" onClick={search}>
+                Search
+            </button>
+        </div>
+            
+        <div>
+            <div className="flex">
+                <div className="w-1/2">
+                    <h1>SONGS FROM CLICKED ALBUM</h1>
+                    <ul >
+                        {tracks.map( (track, i) => {
+                            // console.log(track);
+                            return(
+                                <li key={`${track.name}-${track.id}`} onClick={() => list(track)} >{i+1}. {track.name}</li>
+                                )
+                            })}
+                    </ul>
+                </div>
+                <div className="w-1/2">
+                    <h1>SONGS YOU SELECTED</h1>
+                    <ul>
+                        {/* {console.log(selectedSongs)} */}
+                        {/* {tracks.map( (song, i) => {
+                            return(
+                                <li>{i+1}. {song.name}</li>
+                                )
+                            })} */}
+                    </ul>
+                </div>
+            </div>
+            <br></br><br></br><br></br><br></br>
             <h1>Albums</h1>
-                {/* {console.log(albums)} */}
-                <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-4 gap-4">
                 {albums.map( (album, i) => {
                     // console.log(album);
                     {/* className=" w-[432px] h-[432px]" */}
                     return(
-                        <div className="border-2 p-3.5 rounded-md">
-                            <img  src={album.images[0].url}></img>
+                        <div key={`${album.name}-${album.id}`} className="border-2 p-3.5 rounded-md" onClick={() => searchAlbums(album.id)}>
+                            <img className=" " src={album.images[0].url}></img>
                             <div className="text-center ">
                                 <p className=" my-1">{album.name}</p>
                             </div>
                         </div>
                     )
                 })}
+             </div>
+            
 
-                </div>
-                <h1>Singles</h1>
-                <div className="grid grid-cols-4 gap-4">
-                {singles.map( (album, i) => {
+            <br></br><br></br><br></br><br></br><br></br><br></br>
+            
+            <h1 className="">Singles</h1>
+            <div className="grid grid-cols-4 gap-4">
+                {/* {console.log('# of singles',numOfSingles)} */}
+                {singles.map( (single, i) => {
                     // console.log(album);
                     return(
-                        <div className="border-2 p-3.5 rounded-md">
-                            <img className=" w-[432px] h-[432px]" src={album.images[0].url}></img>
+                        <div key={`${single.name}-${single.id}`} className="border-2 p-3.5 rounded-md">
+                            <img className=" " src={single.images[0].url}></img>
                             <div className="text-center ">
-                                <p className=" my-1">{album.name}</p>
+                                <p className=" my-1">{single.name}</p>
                             </div>
                         </div>
                     )
                 })}
-                </div>
-
-                
-
-                
             </div>
         </div>
-    //   <div className="App">
-    //     <Container>
-    //       <InputGroup className="mb-3" size="lg">
-    //         <FormControl
-    //           placeholder="Search For Artist"
-    //           type="input"
-    //           onKeyDown={event => {
-    //             if (event.key === "Enter") {
-    //               search();
-    //             }
-    //           }}
-    //           onChange={event => setSearchInput(event.target.value)}
-    //         />
-    //         <Button onClick={search}>
-    //           Search
-    //         </Button>
-    //       </InputGroup>
-
-    //     </Container>
-    //     <Container>
-    //       <Row className="mx-2 row row-cols-4">
-    //         {albums.map( (album, i) => {
-    //           console.log(album);
-    //           return(
-    //             <Card className="pt-2">
-    //               <Card.Img src={album.images[0].url}/>
-    //               <Card.Body>
-    //                 <Card.Title>{album.name}</Card.Title>
-    //               </Card.Body>
-    //             </Card>
-    //           )
-    //         })}
-    //       </Row>
-    //     </Container>
-    //   </div>
+    </div>
     )
 }
 
