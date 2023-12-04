@@ -11,8 +11,8 @@ export default function Home() {
   return (
     <>
     <main>
-    {/* <SearchF></SearchF> */}
-    <RankUI></RankUI>
+    <SearchF></SearchF>
+    {/* <RankUI></RankUI> */}
     </main>
     </>
   )
