@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 
-const { useToken } = require("./idk/tokenContext");
+const { useToken } = require("../context/tokenContext");
 
 // export function UserProfile(){
 //     return(
@@ -26,7 +26,7 @@ export const ExampleArtist= ()=>{
     //   const data = await response.json();
     //   console.log(data)
     //   return data
-    const {accessToken, setToken} = useToken();
+    const {accessToken} = useToken();
     console.log(accessToken)
     const [myData, setmyData] = useState(null);
     useEffect(() => {
@@ -53,7 +53,7 @@ export const ExampleArtist= ()=>{
   });  
       }
     }, [accessToken]);
-
+    console.log(myData)
     return(
       <>
         <div>

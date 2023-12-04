@@ -1,5 +1,6 @@
 import React, { useReducer } from 'react';
 function rankReducer(state, action) {
+    //reducer to either rank above or below random picked song
     switch (action.type) {
         case 'RankUp':{
             console.log('up')
@@ -20,6 +21,8 @@ function rankReducer(state, action) {
     }
 }
 const initialState ={RankedHigher:['up'],RankedLower:['down']}
+
+
 export function RankUI() {
     const [state, dispatch] = useReducer(rankReducer, initialState)
     function handleRankDown() {

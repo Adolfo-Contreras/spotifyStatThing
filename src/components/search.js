@@ -1,6 +1,6 @@
 "use client";
 import {useState, useEffect } from "react";
-import { useToken } from "./idk/tokenContext";
+import { useToken } from "../context/tokenContext";
 // import 'bootstrap/dist/css/bootstrap.min.css';
 // import { Container, InputGroup, FormControl, Button, Row, Card} from 'react-bootstrap';
 
