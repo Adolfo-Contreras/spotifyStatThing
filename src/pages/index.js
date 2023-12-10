@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <>
     <main>
-    <Link href="/front">go to three</Link>
+    {/* <Link href="/front">go to three</Link> */}
     <SearchF></SearchF>
     <RankUI></RankUI>
     </main>
