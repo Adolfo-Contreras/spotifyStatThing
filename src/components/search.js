@@ -1,8 +1,6 @@
 "use client";
-import {useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useToken } from "./idk/tokenContext";
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// import { Container, InputGroup, FormControl, Button, Row, Card} from 'react-bootstrap';
 
 const clientID = "d7c0438d174b4460ae3c0935f30dd541";
 const clientSecret = "42396c3d643941c7a35ccdaefc3877b7";
@@ -11,21 +9,30 @@ function SearchF() {
   const [searchInput, setSearchInput] = useState("");
   
   const {accessToken, setAccessToken} = useToken();
+  // used for spotify api
+  const searchParameters = {
+    method: 'GET',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+    }
+  }
   const [artistId, setArtistId] = useState("");
+  const [listArtists, setListArtists] = useState([]);
 
   const [albums, setAlbums] = useState([]);
-
   const [numOfAlbums, setNumOfAlbums] = useState(0);
   const [albumID, setAlbumID] = useState("");
 
-  const [singles ,setSingles] = useState([]);
+  const [singles, setSingles] = useState([]);
   const [numOfSingles, setNumOfSingles] = useState(0); 
 
   const [tracks, setTracks] = useState([]);
   const [numOfTracks, setNumOfTracks] = useState(0);
 
-  const [selectedSongs, setSelectedSongs] = ([]);
+  const [selectedSongs, setSelectedSongs] = useState([]);
 
+  // grabs a token to use spotify api
   useEffect(() => {
       
       var authParameters = {
@@ -42,41 +49,31 @@ function SearchF() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //GRABS ALL ALBUMS
+  //GRABS ALL ALBUMS AND SINGLES
   useEffect(() => {
-    // console.log('# of albums',numOfAlbums);
-
-    const rerun = Math.ceil(numOfAlbums / 50);
-
-    const albumsAgain = async (offset, artistId) => {
-        var searchParameters = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + accessToken
-              }
-        }
-        const response = await fetch('https://api.spotify.com/v1/artists/' + artistId + '/albums' + '?include_groups=album&market=US&limit=50&offset=' + offset, searchParameters);
-
+      const albumsAgain = async (offset, artistId, includeGroups, setItems, numOfItems) => {
+          const response = await fetch('https://api.spotify.com/v1/artists/' + artistId + '/albums' + '?include_groups=' + includeGroups + '&market=US&limit=50&offset=' + offset, searchParameters);
         const data = await response.json();
-        
-        // console.log('data',data);
-        setAlbums(prevAlbums => [...prevAlbums, ...data.items]);
+        setItems(prevItems => [...prevItems, ...data.items]);
     };
-
-    const runAsyncFunction = async (artistId) => {
+    
+    const runAsyncFunction = async (artistId, includeGroups, numOfItems) => {
+        const rerun = Math.ceil(numOfItems / 50);
         for (let i = 1; i < rerun; i++) {
-          const offset = i * 50;
-          await albumsAgain(offset, artistId);
+            const offset = i * 50;
+            await albumsAgain(offset, artistId, includeGroups, includeGroups === 'single' ? setSingles : setAlbums, numOfItems);
         }
-      };
-  
-    runAsyncFunction(artistId);
-  }, [numOfAlbums, artistId]);
+    };
+    
+    runAsyncFunction(artistId, 'single', numOfSingles);
+    runAsyncFunction(artistId, 'album', numOfAlbums);
+    console.log("albums: ", albums);
+    console.log("singles: ", singles);
+}, [numOfSingles, numOfAlbums, artistId]);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //GRABS ALL TRACKS FROM AN ALBUM
+  //GRABS ALL TRACKS FROM AN ALBUM AND SINGLES
   useEffect(() => {
     // console.log('# of tracks',numOfTracks);
     console.log("tracks: ", tracks);
@@ -84,21 +81,10 @@ function SearchF() {
     const rerun = Math.ceil(numOfTracks / 50);
 
     const tracksAgain = async (offset, albumID) => {
-        var searchParameters = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + accessToken
-              }
-        }
         const response = await fetch('https://api.spotify.com/v1/albums/' + albumID + '/tracks?market=US&limit=50&offset=' + offset, searchParameters)
-        
         const data = await response.json();
-        
-        // console.log('data: ', data);
         setTracks(prevTracks => [...prevTracks, ...data.items]);
     };
-
     const runAsyncFunction = async (albumID) => {
         for (let i = 1; i < rerun; i++) {
           const offset = i * 50;
@@ -112,102 +98,47 @@ function SearchF() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  //GRABS ALL SINGLES
-  useEffect(() => {
-    // console.log('# of singles',numOfSingles);
-
-    const rerun = Math.ceil(numOfSingles / 50);
-
-    const singlesAgain = async (offset, artistId) => {
-        var searchParameters = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + accessToken
-              }
-        }
-        const response = await fetch('https://api.spotify.com/v1/artists/' + artistId + '/albums' + '?include_groups=single&market=US&limit=50&offset=' + offset, searchParameters);
-
-        const data = await response.json();
-        
-        // console.log('data',data);
-        setSingles(prevSingles => [...prevSingles, ...data.items]);
-    };
-
-    const runAsyncFunction = async (artistId) => {
-        for (let i = 1; i < rerun; i++) {
-          const offset = i * 50;
-          await singlesAgain(offset, artistId);
-        }
-      };
-  
-    runAsyncFunction(artistId);
-  }, [numOfSingles, artistId]);
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-  async function search() {
+  //searches 10 top artists
+  async function searchArtist() {
     setTracks([]);
-    // console.log("Test",tracks);
-    // console.log("tracks: ", tracks);
-    if (searchInput === '') return;
     console.log("Searching for " + searchInput); // Taylor Swift
-    
-    //used for pretty much anything involving the spotify API
-    var searchParameters = {
-          method: 'GET',
-          headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + accessToken
-            }
-    }
 
-    //////////////////////////////////
+    if (searchInput === '') return;
 
-    const artistID = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=artist', searchParameters)
+    const artistList = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=artist&limit=10', searchParameters)
     .then(response => response.json())
     .then(data => { 
-        setArtistId(data.artists.items[0].id)
-        return data.artists.items[0].id 
+        setListArtists(data.artists.items)
     })
-    
+  }
+  //gets data from artist you clicked
+  async function getArtistData(artistID) {
+    setListArtists([])
+    setArtistId(artistID)
     console.log("Artist ID is " + artistID);
-    
-    //////////////////////////////////
 
-    //uses artist id to find their albums (but only finds first 50)
+    //uses artist id to find their albums
     const returnedAlbums = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=album&market=US&limit=50', searchParameters)
     .then(response => response.json())
     .then(data => {
-      console.log(data);
+      console.log("artist album data: ", data);
       setNumOfAlbums(data.total)    
       setAlbums(data.items);
     });
-
-    //////////////////////////////////
     
-    //uses artist id to find their singles (but only finds first 50)
+    //uses artist id to find their singles
     const returnedSingles = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=single&market=US&limit=50&offset=0', searchParameters)
     .then(response => response.json())
     .then(data => {
+        console.log("artist single data: ", data);
         setNumOfSingles(data.total)
         setSingles(data.items);
     })
   }
-
-  //finds all the songs in the album
+  //finds all the songs in the album/single
   async function searchAlbums(id) {
-    console.log('album: ', id);
-    
-    var searchParameters = {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + accessToken
-        }
-    }
-    
+    // console.log('album: ', id);
+
     const returnedAlbumTracks = await fetch('https://api.spotify.com/v1/albums/' + id + '/tracks?market=US&limit=50&offset=0', searchParameters)
     .then(response => response.json())
     .then(data => {
@@ -217,15 +148,19 @@ function SearchF() {
         setAlbumID(id)
     })
   }
-
   // adds them to the list
   async function list(track) {
-    console.log(track.name);
-    // setSelectedSongs(...selectedSongs, track.name)
-
+    console.log("song-name: ",track.name);
+    console.log(selectedSongs);
+    if(selectedSongs.includes(track.name)){
+        console.log('this song is already inside');
+        return;
+    } else {
+        setSelectedSongs(old => [...old, track.name])
+    }
   }
 
-    return (
+  return (
     <div className=" w-full p-2">
         <div className="my-2"> {/*search */}
             <input
@@ -234,16 +169,26 @@ function SearchF() {
             type="input"
             onKeyDown={event => {
                 if (event.key === "Enter") {
-                    search();
+                    searchArtist();
                 }
             }}
             onChange={event => setSearchInput(event.target.value.trim())}>
             </input>
-            <button className=" bg-sky-500 border shadow-inner shadow-sky-400 rounded-lg p-0.5 px-1 text-center leading-tight" onClick={search}>
+            <button className=" bg-sky-500 border shadow-inner shadow-sky-400 rounded-lg p-0.5 px-1 text-center leading-tight" onClick={searchArtist}>
                 Search
             </button>
         </div>
-            
+        <div> {/* this is the list that will be generated when you search an artist */}
+            <ul>
+                {listArtists.map( (artist, i ) => {
+                    // console.log(artist.name);
+                    return(
+                        <li key={i+1} onClick={() => getArtistData(artist.id)}>{i+1}. {artist.name}</li>
+                    )
+                })}
+            </ul>
+        </div>
+        <br></br>
         <div>
             <div className="flex">
                 <div className="w-1/2">
@@ -261,11 +206,11 @@ function SearchF() {
                     <h1>SONGS YOU SELECTED</h1>
                     <ul>
                         {/* {console.log(selectedSongs)} */}
-                        {/* {tracks.map( (song, i) => {
+                        {selectedSongs.map( (song, i) => {
                             return(
-                                <li>{i+1}. {song.name}</li>
-                                )
-                            })} */}
+                                <li key={`${song}`}>{song}</li>
+                            )
+                        })}
                     </ul>
                 </div>
             </div>
@@ -284,7 +229,7 @@ function SearchF() {
                         </div>
                     )
                 })}
-             </div>
+                </div>
             
 
             <br></br><br></br><br></br><br></br><br></br><br></br>
@@ -295,7 +240,7 @@ function SearchF() {
                 {singles.map( (single, i) => {
                     // console.log(album);
                     return(
-                        <div key={`${single.name}-${single.id}`} className="border-2 p-3.5 rounded-md">
+                        <div key={`${single.name}-${single.id}`} className="border-2 p-3.5 rounded-md" onClick={() => searchAlbums(single.id)}>
                             <img className=" " src={single.images[0].url}></img>
                             <div className="text-center ">
                                 <p className=" my-1">{single.name}</p>
@@ -306,7 +251,7 @@ function SearchF() {
             </div>
         </div>
     </div>
-    )
+  )
 }
 
 export default SearchF;
