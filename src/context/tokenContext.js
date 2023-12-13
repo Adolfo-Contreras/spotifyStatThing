@@ -27,9 +27,6 @@ import React, { useState, createContext, useContext } from 'react';
 const tokenContext = createContext();
 export const TokenProvider = ({children})=>{
     const [accessToken, setAccessToken] = useState(null);
-    const setToken = (token)=>{
-        setAccessToken(token)
-    }
     return(
         <>
             <tokenContext.Provider value={{accessToken, setAccessToken}}>

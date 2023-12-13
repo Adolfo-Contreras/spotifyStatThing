@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useToken } from "./idk/tokenContext";
+import {useState, useEffect } from "react";
+import { useToken } from "../context/tokenContext";
 
 const clientID = "d7c0438d174b4460ae3c0935f30dd541";
 const clientSecret = "42396c3d643941c7a35ccdaefc3877b7";
