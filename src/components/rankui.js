@@ -20,7 +20,7 @@ function rankReducer(state, action) {
             throw Error('Unknown action '+ action.type)
     }
 }
-const initialState ={RankedHigher:['up'],RankedLower:['down']}
+const initialState ={RankedHigher:[],RankedLower:[]}
 
 
 export function RankUI() {
